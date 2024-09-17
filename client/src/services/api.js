@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/health-records";
+const API_URL = "https://health-tracking.onrender.com/";
 
 // Fetch all records
 export const fetchHealthRecords = async () => {
