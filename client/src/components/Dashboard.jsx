@@ -5,12 +5,22 @@ import SearchBar from "./SearchBar";
 import { motion } from "framer-motion";
 import RecordModal from "./RecordModal";
 
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
+
+const scaleUp = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
+};
+
 function Dashboard() {
   const [records, setRecords] = useState([]);
   const [filteredRecords, setFilteredRecords] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [sortOrder, setSortOrder] = useState("asc"); // New state for sorting order
+  const [sortOrder, setSortOrder] = useState("asc");
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -83,39 +93,29 @@ function Dashboard() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Health Metrics Dashboard</h1>
+    <div className="container mx-auto p-6 bg-gray-900 text-gray-100 min-h-screen">
+      <h1 className="text-4xl font-bold mb-6">Health Metrics Dashboard</h1>
       <button
-        className="bg-green-500 text-white px-4 py-2 mb-4 rounded"
+        className="bg-teal-500 text-white px-5 py-3 mb-6 rounded shadow-lg hover:bg-teal-400 transition duration-300"
         onClick={() => setIsModalOpen(true)}
       >
         Add New Record
       </button>
       <SearchBar onSearch={handleSearch} />
-      <button
-        className="bg-blue-500 text-white px-4 py-2 mb-4 rounded"
-        onClick={() => handleSort("date")}
-      >
-        Sort by Date {sortOrder === "asc" ? "↑" : "↓"}
-      </button>
-      <button
-        className="bg-blue-500 text-white px-4 py-2 mb-4 rounded"
-        onClick={() => handleSort("heartRate")}
-      >
-        Sort by Heart Rate {sortOrder === "asc" ? "↑" : "↓"}
-      </button>
-      <button
-        className="bg-blue-500 text-white px-4 py-2 mb-4 rounded"
-        onClick={() => handleSort("bodyTemperature")}
-      >
-        Sort by Body Temperature {sortOrder === "asc" ? "↑" : "↓"}
-      </button>
-      <button
-        className="bg-blue-500 text-white px-4 py-2 mb-4 rounded"
-        onClick={() => handleSort("bloodPressure")}
-      >
-        Sort by Blood Pressure {sortOrder === "asc" ? "↑" : "↓"}
-      </button>
+      <div className="mb-6 flex gap-4">
+        {["date", "heartRate", "bodyTemperature", "bloodPressure"].map(
+          (field) => (
+            <button
+              key={field}
+              className="bg-indigo-500 text-white px-4 py-2 rounded shadow-lg hover:bg-indigo-400 transition duration-300"
+              onClick={() => handleSort(field)}
+            >
+              Sort by {field.charAt(0).toUpperCase() + field.slice(1)}{" "}
+              {sortOrder === "asc" ? "↑" : "↓"}
+            </button>
+          )
+        )}
+      </div>
       <AddHealthRecord
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -128,67 +128,72 @@ function Dashboard() {
       />
       {filteredRecords.length ? (
         <motion.table
-          className="table-auto w-full"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          className="table-auto w-full text-gray-100"
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
           transition={{ duration: 0.5 }}
         >
           <thead>
-            <tr className="bg-gray-200">
-              <th className="px-4 py-2">Date</th>
-              <th className="px-4 py-2">Body Temperature</th>
-              <th className="px-4 py-2">Blood Pressure</th>
-              <th className="px-4 py-2">Heart Rate</th>
-              <th className="px-4 py-2">Actions</th>
+            <tr className="bg-gray-800">
+              <th className="px-6 py-4">Date</th>
+              <th className="px-6 py-4">Body Temperature</th>
+              <th className="px-6 py-4">Blood Pressure</th>
+              <th className="px-6 py-4">Heart Rate</th>
+              <th className="px-6 py-4">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredRecords.map((record) => (
               <motion.tr
                 key={record._id}
+                variants={scaleUp}
+                initial="hidden"
+                animate="visible"
+                transition={{ duration: 0.3 }}
                 whileHover={{ scale: 1.02 }}
-                className="bg-white"
+                className="bg-gray-800 hover:bg-gray-700"
               >
-                <td className="border px-4 py-2">
+                <td className="border px-6 py-4">
                   {new Date(record.date).toLocaleDateString()}
                 </td>
                 <td
-                  className={`border px-4 py-2 ${
+                  className={`border px-6 py-4 ${
                     record.bodyTemperature > 37
-                      ? "bg-red-500 text-white"
-                      : "bg-yellow-200"
+                      ? "bg-red-600 text-white"
+                      : "bg-yellow-400"
                   }`}
                 >
                   {record.bodyTemperature}°C
                 </td>
                 <td
-                  className={`border px-4 py-2 ${
+                  className={`border px-6 py-4 ${
                     record.bloodPressure.systolic > 120
-                      ? "bg-red-500 text-white"
-                      : "bg-yellow-200"
+                      ? "bg-red-600 text-white"
+                      : "bg-yellow-400"
                   }`}
                 >
                   {record.bloodPressure.systolic}/
                   {record.bloodPressure.diastolic}
                 </td>
                 <td
-                  className={`border px-4 py-2 ${
+                  className={`border px-6 py-4 ${
                     record.heartRate > 100
-                      ? "bg-red-500 text-white"
-                      : "bg-yellow-200"
+                      ? "bg-red-600 text-white"
+                      : "bg-yellow-400"
                   }`}
                 >
                   {record.heartRate} bpm
                 </td>
-                <td className="border px-4 py-2">
+                <td className="border px-6 py-4">
                   <button
-                    className="bg-blue-500 text-white px-2 py-1 rounded"
+                    className="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-400 transition duration-300"
                     onClick={() => handleView(record)}
                   >
                     View
                   </button>
                   <button
-                    className="bg-red-500 text-white px-2 py-1 rounded ml-2"
+                    className="bg-red-600 text-white px-3 py-1 rounded ml-2 hover:bg-red-500 transition duration-300"
                     onClick={() => handleDelete(record._id)}
                   >
                     Delete
@@ -200,8 +205,10 @@ function Dashboard() {
         </motion.table>
       ) : (
         <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          className="text-gray-400"
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
           transition={{ duration: 0.5 }}
         >
           No health records available.
