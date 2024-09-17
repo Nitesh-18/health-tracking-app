@@ -3,9 +3,14 @@ import { createHealthRecord, updateHealthRecord } from "../services/api";
 import { motion } from "framer-motion";
 
 const modalVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
+  hidden: { opacity: 0, scale: 0.9 },
   visible: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.8 },
+  exit: { opacity: 0, scale: 0.9 },
+};
+
+const inputVariants = {
+  hidden: { opacity: 0, y: -20 },
+  visible: { opacity: 1, y: 0 },
 };
 
 function AddHealthRecord({ isOpen, onClose, selectedRecord, refreshRecords }) {
@@ -84,76 +89,89 @@ function AddHealthRecord({ isOpen, onClose, selectedRecord, refreshRecords }) {
       animate="visible"
       exit="exit"
       variants={modalVariants}
+      transition={{ duration: 0.4 }}
     >
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4">
+      <motion.div
+        className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md"
+        variants={inputVariants}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.2, duration: 0.4 }}
+      >
+        <h2 className="text-2xl font-bold text-gray-100 mb-4">
           {selectedRecord ? "Update Health Record" : "Add New Health Record"}
         </h2>
         <form onSubmit={handleSubmit}>
-          <label className="block mb-2">
-            Date:
+          <label className="block mb-4">
+            <span className="text-gray-300">Date:</span>
             <input
               type="date"
               name="date"
               value={form.date}
               onChange={handleChange}
-              className="w-full border p-2"
+              className="w-full bg-gray-700 text-gray-100 border border-gray-600 p-3 rounded-md mt-1"
             />
           </label>
-          <label className="block mb-2">
-            Body Temperature (°C):
+          <label className="block mb-4">
+            <span className="text-gray-300">Body Temperature (°C):</span>
             <input
               type="number"
               name="bodyTemperature"
               value={form.bodyTemperature}
               onChange={handleChange}
-              className="w-full border p-2"
+              className="w-full bg-gray-700 text-gray-100 border border-gray-600 p-3 rounded-md mt-1"
             />
           </label>
-          <label className="block mb-2">
-            Blood Pressure (Systolic/Diastolic):
-            <input
-              type="number"
-              name="systolic"
-              placeholder="Systolic"
-              value={form.systolic}
-              onChange={handleChange}
-              className="w-full border p-2"
-            />
-            <input
-              type="number"
-              name="diastolic"
-              placeholder="Diastolic"
-              value={form.diastolic}
-              onChange={handleChange}
-              className="w-full border p-2 mt-2"
-            />
+          <label className="block mb-4">
+            <span className="text-gray-300">
+              Blood Pressure (Systolic/Diastolic):
+            </span>
+            <div className="flex space-x-2">
+              <input
+                type="number"
+                name="systolic"
+                placeholder="Systolic"
+                value={form.systolic}
+                onChange={handleChange}
+                className="w-full bg-gray-700 text-gray-100 border border-gray-600 p-3 rounded-md"
+              />
+              <input
+                type="number"
+                name="diastolic"
+                placeholder="Diastolic"
+                value={form.diastolic}
+                onChange={handleChange}
+                className="w-full bg-gray-700 text-gray-100 border border-gray-600 p-3 rounded-md"
+              />
+            </div>
           </label>
-          <label className="block mb-2">
-            Heart Rate (bpm):
+          <label className="block mb-4">
+            <span className="text-gray-300">Heart Rate (bpm):</span>
             <input
               type="number"
               name="heartRate"
               value={form.heartRate}
               onChange={handleChange}
-              className="w-full border p-2"
+              className="w-full bg-gray-700 text-gray-100 border border-gray-600 p-3 rounded-md mt-1"
             />
           </label>
-          <button
-            type="submit"
-            className="bg-green-500 text-white px-4 py-2 mt-4 rounded"
-          >
-            {selectedRecord ? "Update Record" : "Add Record"}
-          </button>
-          <button
-            type="button"
-            className="bg-gray-500 text-white px-4 py-2 mt-4 ml-4 rounded"
-            onClick={onClose}
-          >
-            Cancel
-          </button>
+          <div className="flex space-x-4">
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-4 py-2 rounded-md transition duration-300 hover:bg-green-600"
+            >
+              {selectedRecord ? "Update Record" : "Add Record"}
+            </button>
+            <button
+              type="button"
+              className="bg-gray-600 text-white px-4 py-2 rounded-md transition duration-300 hover:bg-gray-700"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+          </div>
         </form>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
