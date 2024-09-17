@@ -64,7 +64,7 @@ function AddHealthRecord({ isOpen, onClose, selectedRecord, refreshRecords }) {
       await createHealthRecord(record);
     }
 
-    refreshRecords();
+    refreshRecords(); // Refresh the list of records
     setForm({
       date: "",
       bodyTemperature: "",

@@ -1,19 +1,24 @@
 import { useState, useEffect } from "react";
 import { fetchHealthRecords, deleteHealthRecord } from "../services/api";
 import AddHealthRecord from "./AddHealthRecord";
-import RecordModal from "./RecordModal";
+import SearchBar from "./SearchBar";
 import { motion } from "framer-motion";
+import RecordModal from "./RecordModal";
 
 function Dashboard() {
   const [records, setRecords] = useState([]);
+  const [filteredRecords, setFilteredRecords] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc"); // New state for sorting order
 
   useEffect(() => {
     const fetchRecords = async () => {
       const data = await fetchHealthRecords();
       setRecords(data);
+      setFilteredRecords(data);
     };
+
     fetchRecords();
   }, []);
 
@@ -25,11 +30,56 @@ function Dashboard() {
   const handleDelete = async (id) => {
     await deleteHealthRecord(id);
     setRecords(records.filter((record) => record._id !== id));
+    setFilteredRecords(filteredRecords.filter((record) => record._id !== id));
   };
 
-  const refreshRecords = async () => {
-    const data = await fetchHealthRecords();
-    setRecords(data);
+  const handleSearch = (searchTerm, filterType) => {
+    let results = records;
+    if (searchTerm) {
+      results = results.filter((record) => {
+        if (filterType === "date") {
+          return record.date.includes(searchTerm);
+        } else if (filterType === "heartRate") {
+          return record.heartRate.toString().includes(searchTerm);
+        } else if (filterType === "bodyTemperature") {
+          return record.bodyTemperature.toString().includes(searchTerm);
+        } else if (filterType === "bloodPressure") {
+          return (
+            record.bloodPressure.systolic.toString().includes(searchTerm) ||
+            record.bloodPressure.diastolic.toString().includes(searchTerm)
+          );
+        }
+        return false;
+      });
+    }
+    setFilteredRecords(results);
+  };
+
+  const handleSort = (field) => {
+    const sortedRecords = [...filteredRecords].sort((a, b) => {
+      if (field === "date") {
+        return sortOrder === "asc"
+          ? new Date(a.date) - new Date(b.date)
+          : new Date(b.date) - new Date(a.date);
+      } else if (field === "heartRate") {
+        return sortOrder === "asc"
+          ? a.heartRate - b.heartRate
+          : b.heartRate - a.heartRate;
+      } else if (field === "bodyTemperature") {
+        return sortOrder === "asc"
+          ? a.bodyTemperature - b.bodyTemperature
+          : b.bodyTemperature - a.bodyTemperature;
+      } else if (field === "bloodPressure") {
+        return sortOrder === "asc"
+          ? a.bloodPressure.systolic - b.bloodPressure.systolic ||
+              a.bloodPressure.diastolic - b.bloodPressure.diastolic
+          : b.bloodPressure.systolic - a.bloodPressure.systolic ||
+              b.bloodPressure.diastolic - a.bloodPressure.diastolic;
+      }
+      return 0;
+    });
+    setFilteredRecords(sortedRecords);
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
   return (
@@ -41,12 +91,42 @@ function Dashboard() {
       >
         Add New Record
       </button>
+      <SearchBar onSearch={handleSearch} />
+      <button
+        className="bg-blue-500 text-white px-4 py-2 mb-4 rounded"
+        onClick={() => handleSort("date")}
+      >
+        Sort by Date {sortOrder === "asc" ? "↑" : "↓"}
+      </button>
+      <button
+        className="bg-blue-500 text-white px-4 py-2 mb-4 rounded"
+        onClick={() => handleSort("heartRate")}
+      >
+        Sort by Heart Rate {sortOrder === "asc" ? "↑" : "↓"}
+      </button>
+      <button
+        className="bg-blue-500 text-white px-4 py-2 mb-4 rounded"
+        onClick={() => handleSort("bodyTemperature")}
+      >
+        Sort by Body Temperature {sortOrder === "asc" ? "↑" : "↓"}
+      </button>
+      <button
+        className="bg-blue-500 text-white px-4 py-2 mb-4 rounded"
+        onClick={() => handleSort("bloodPressure")}
+      >
+        Sort by Blood Pressure {sortOrder === "asc" ? "↑" : "↓"}
+      </button>
       <AddHealthRecord
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        refreshRecords={refreshRecords}
+        refreshRecords={() => {
+          fetchHealthRecords().then((data) => {
+            setRecords(data);
+            setFilteredRecords(data);
+          });
+        }}
       />
-      {records.length ? (
+      {filteredRecords.length ? (
         <motion.table
           className="table-auto w-full"
           initial={{ opacity: 0 }}
@@ -63,7 +143,7 @@ function Dashboard() {
             </tr>
           </thead>
           <tbody>
-            {records.map((record) => (
+            {filteredRecords.map((record) => (
               <motion.tr
                 key={record._id}
                 whileHover={{ scale: 1.02 }}
@@ -74,8 +154,7 @@ function Dashboard() {
                 </td>
                 <td
                   className={`border px-4 py-2 ${
-                    record.bodyTemperature < 36.5 ||
-                    record.bodyTemperature > 37.5
+                    record.bodyTemperature > 37
                       ? "bg-red-500 text-white"
                       : "bg-yellow-200"
                   }`}
@@ -84,10 +163,7 @@ function Dashboard() {
                 </td>
                 <td
                   className={`border px-4 py-2 ${
-                    record.bloodPressure.systolic < 90 ||
-                    record.bloodPressure.systolic > 120 ||
-                    record.bloodPressure.diastolic < 60 ||
-                    record.bloodPressure.diastolic > 80
+                    record.bloodPressure.systolic > 120
                       ? "bg-red-500 text-white"
                       : "bg-yellow-200"
                   }`}
@@ -97,7 +173,7 @@ function Dashboard() {
                 </td>
                 <td
                   className={`border px-4 py-2 ${
-                    record.heartRate < 60 || record.heartRate > 100
+                    record.heartRate > 100
                       ? "bg-red-500 text-white"
                       : "bg-yellow-200"
                   }`}
@@ -134,7 +210,7 @@ function Dashboard() {
       {selectedRecord && (
         <RecordModal
           record={selectedRecord}
-          isOpen={true}
+          isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
             setSelectedRecord(null);
@@ -145,6 +221,12 @@ function Dashboard() {
                 record._id === updatedRecord._id ? updatedRecord : record
               )
             );
+            setFilteredRecords(
+              filteredRecords.map((record) =>
+                record._id === updatedRecord._id ? updatedRecord : record
+              )
+            );
+            setSelectedRecord(null);
           }}
         />
       )}
