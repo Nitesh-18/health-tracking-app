@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { fetchHealthRecords, deleteHealthRecord } from "../services/api";
 import AddHealthRecord from "./AddHealthRecord";
 import SearchBar from "./SearchBar";
-import { useSpring, animated } from "@react-spring/web";
 import RecordModal from "./RecordModal";
+import "../index.css";
 
 function Dashboard() {
   const [records, setRecords] = useState([]);
@@ -12,6 +12,7 @@ function Dashboard() {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [highlightedRecord, setHighlightedRecord] = useState(null);
+  const [isGlowing, setIsGlowing] = useState(false);
 
   // Fetch records on component mount
   useEffect(() => {
@@ -102,10 +103,12 @@ function Dashboard() {
     );
     setHighlightedRecord(updatedRecord._id);
 
-    // Start highlight effect
+    // Add glow effect for 2 seconds
+    setIsGlowing(true);
     setTimeout(() => {
       setHighlightedRecord(null);
-    }, 3000);
+      setIsGlowing(false);
+    }, 2000); // Keep highlight for 2 seconds
   };
 
   return (
@@ -162,7 +165,9 @@ function Dashboard() {
               <tr
                 key={record._id}
                 className={`${
-                  highlightedRecord === record._id ? "bg-yellow-200" : ""
+                  highlightedRecord === record._id || isGlowing
+                    ? "glow-active"
+                    : ""
                 } transition-colors duration-300`}
               >
                 <td className="border px-6 py-4">

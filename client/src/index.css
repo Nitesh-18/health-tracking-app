@@ -2,3 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+.glow {
+  position: relative;
+  z-index: 1;
+}
+
+.glow::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 1); /* Increased glow intensity */
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.glow-active .glow::after {
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
