@@ -1,4 +1,3 @@
-// components/SearchBar.jsx
 import { useState } from "react";
 
 function SearchBar({ onSearch }) {
@@ -15,18 +14,18 @@ function SearchBar({ onSearch }) {
   };
 
   return (
-    <div className="mb-4 flex space-x-4">
+    <div className="mb-6 flex space-x-4">
       <input
         type="text"
         placeholder="Search..."
         value={searchTerm}
         onChange={handleSearch}
-        className="border p-2 rounded w-full"
+        className="bg-gray-800 text-gray-100 border-gray-700 p-3 rounded-md w-full placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300"
       />
       <select
         value={filterType}
         onChange={handleFilterChange}
-        className="border p-2 rounded"
+        className="bg-gray-800 text-gray-100 border-gray-700 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300"
       >
         <option value="date">Date</option>
         <option value="heartRate">Heart Rate</option>
