@@ -2,18 +2,8 @@ import { useState, useEffect } from "react";
 import { fetchHealthRecords, deleteHealthRecord } from "../services/api";
 import AddHealthRecord from "./AddHealthRecord";
 import SearchBar from "./SearchBar";
-import { motion } from "framer-motion";
+import { useSpring, animated } from "@react-spring/web";
 import RecordModal from "./RecordModal";
-
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-};
-
-const scaleUp = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: { opacity: 1, scale: 1 },
-};
 
 function Dashboard() {
   const [records, setRecords] = useState([]);
@@ -21,7 +11,9 @@ function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
+  const [highlightedRecord, setHighlightedRecord] = useState(null);
 
+  // Fetch records on component mount
   useEffect(() => {
     const fetchRecords = async () => {
       const data = await fetchHealthRecords();
@@ -32,17 +24,20 @@ function Dashboard() {
     fetchRecords();
   }, []);
 
+  // Handle view modal
   const handleView = (record) => {
     setSelectedRecord(record);
     setIsModalOpen(true);
   };
 
+  // Handle delete record
   const handleDelete = async (id) => {
     await deleteHealthRecord(id);
     setRecords(records.filter((record) => record._id !== id));
     setFilteredRecords(filteredRecords.filter((record) => record._id !== id));
   };
 
+  // Handle search functionality
   const handleSearch = (searchTerm, filterType) => {
     let results = records;
     if (searchTerm) {
@@ -65,6 +60,7 @@ function Dashboard() {
     setFilteredRecords(results);
   };
 
+  // Handle sorting functionality
   const handleSort = (field) => {
     const sortedRecords = [...filteredRecords].sort((a, b) => {
       if (field === "date") {
@@ -90,6 +86,26 @@ function Dashboard() {
     });
     setFilteredRecords(sortedRecords);
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+  // Handle record updates
+  const handleUpdateRecord = (updatedRecord) => {
+    setRecords((prevRecords) =>
+      prevRecords.map((record) =>
+        record._id === updatedRecord._id ? updatedRecord : record
+      )
+    );
+    setFilteredRecords((prevRecords) =>
+      prevRecords.map((record) =>
+        record._id === updatedRecord._id ? updatedRecord : record
+      )
+    );
+    setHighlightedRecord(updatedRecord._id);
+
+    // Start highlight effect
+    setTimeout(() => {
+      setHighlightedRecord(null);
+    }, 3000);
   };
 
   return (
@@ -127,50 +143,51 @@ function Dashboard() {
         }}
       />
       {filteredRecords.length ? (
-        <motion.table
-          className="table-auto w-full text-gray-100"
-          variants={fadeIn}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.5 }}
-        >
+        <table className="table-auto w-full text-gray-100">
           <thead>
             <tr className="bg-gray-800">
               <th className="px-6 py-4">Date</th>
-              <th className="px-6 py-4">Body Temperature</th>
-              <th className="px-6 py-4">Blood Pressure</th>
-              <th className="px-6 py-4">Heart Rate</th>
+              <th className="px-6 py-4">
+                Body Temperature (Reference: 36.5-37.5°C)
+              </th>
+              <th className="px-6 py-4">
+                Blood Pressure (Reference: 120/80 mmHg)
+              </th>
+              <th className="px-6 py-4">Heart Rate (Reference: 60-100 bpm)</th>
               <th className="px-6 py-4">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredRecords.map((record) => (
-              <motion.tr
+              <tr
                 key={record._id}
-                variants={scaleUp}
-                initial="hidden"
-                animate="visible"
-                transition={{ duration: 0.3 }}
-                whileHover={{ scale: 1.02 }}
-                className="bg-gray-800 hover:bg-gray-700"
+                className={`${
+                  highlightedRecord === record._id ? "bg-yellow-200" : ""
+                } transition-colors duration-300`}
               >
                 <td className="border px-6 py-4">
                   {new Date(record.date).toLocaleDateString()}
                 </td>
                 <td
                   className={`border px-6 py-4 ${
-                    record.bodyTemperature > 37
+                    record.bodyTemperature > 37.5
                       ? "bg-red-600 text-white"
-                      : "bg-yellow-400"
+                      : record.bodyTemperature < 36.5
+                      ? "bg-yellow-400"
+                      : "bg-green-500 text-white"
                   }`}
                 >
                   {record.bodyTemperature}°C
                 </td>
                 <td
                   className={`border px-6 py-4 ${
-                    record.bloodPressure.systolic > 120
+                    record.bloodPressure.systolic > 120 ||
+                    record.bloodPressure.diastolic > 80
                       ? "bg-red-600 text-white"
-                      : "bg-yellow-400"
+                      : record.bloodPressure.systolic < 90 ||
+                        record.bloodPressure.diastolic < 60
+                      ? "bg-yellow-400"
+                      : "bg-green-500 text-white"
                   }`}
                 >
                   {record.bloodPressure.systolic}/
@@ -180,7 +197,9 @@ function Dashboard() {
                   className={`border px-6 py-4 ${
                     record.heartRate > 100
                       ? "bg-red-600 text-white"
-                      : "bg-yellow-400"
+                      : record.heartRate < 60
+                      ? "bg-yellow-400"
+                      : "bg-green-500 text-white"
                   }`}
                 >
                   {record.heartRate} bpm
@@ -199,42 +218,19 @@ function Dashboard() {
                     Delete
                   </button>
                 </td>
-              </motion.tr>
+              </tr>
             ))}
           </tbody>
-        </motion.table>
+        </table>
       ) : (
-        <motion.p
-          className="text-gray-400"
-          variants={fadeIn}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.5 }}
-        >
-          No health records available.
-        </motion.p>
+        <p>No records found.</p>
       )}
-      {selectedRecord && (
+      {isModalOpen && selectedRecord && (
         <RecordModal
-          record={selectedRecord}
           isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedRecord(null);
-          }}
-          onUpdate={(updatedRecord) => {
-            setRecords(
-              records.map((record) =>
-                record._id === updatedRecord._id ? updatedRecord : record
-              )
-            );
-            setFilteredRecords(
-              filteredRecords.map((record) =>
-                record._id === updatedRecord._id ? updatedRecord : record
-              )
-            );
-            setSelectedRecord(null);
-          }}
+          record={selectedRecord}
+          onClose={() => setIsModalOpen(false)}
+          onUpdate={handleUpdateRecord}
         />
       )}
     </div>
