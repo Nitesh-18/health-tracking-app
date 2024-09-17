@@ -9,7 +9,12 @@ dotenv.config(); // Initialize environment variables
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://health-tracking-app-jmv3.onrender.com/", // Replace with your deployed frontend URL
+  })
+);
+
 app.use(express.json()); // JSON parser
 
 // Connect to MongoDB
