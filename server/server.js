@@ -12,6 +12,7 @@ const app = express();
 app.use(
   cors({
     origin: "https://health-tracking-app-jmv3.onrender.com", // Replace with your deployed frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE"], // Explicitly allow POST requests
   })
 );
 
