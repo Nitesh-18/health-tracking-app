@@ -123,6 +123,6 @@ Make sure to update the frontend API URL in `client/src/services/api.js` to matc
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](client/LICENSE) file for details.
 
 ---
