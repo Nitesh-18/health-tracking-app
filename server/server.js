@@ -11,7 +11,7 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "https://health-tracking-app-jmv3.onrender.com/", // Replace with your deployed frontend URL
+    origin: "https://health-tracking-app-jmv3.onrender.com", // Replace with your deployed frontend URL
   })
 );
 
