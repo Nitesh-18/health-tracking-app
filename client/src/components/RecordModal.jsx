@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { updateHealthRecord } from "../services/api";
 import { motion } from "framer-motion";
 
@@ -28,17 +28,6 @@ function RecordModal({ record, isOpen, onClose, onUpdate }) {
     heartRate: record.heartRate,
   });
 
-  // Update form state when the record changes
-  useEffect(() => {
-    setForm({
-      date: new Date(record.date).toISOString().split("T")[0],
-      bodyTemperature: record.bodyTemperature,
-      systolic: record.bloodPressure.systolic,
-      diastolic: record.bloodPressure.diastolic,
-      heartRate: record.heartRate,
-    });
-  }, [record]);
-
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -48,22 +37,18 @@ function RecordModal({ record, isOpen, onClose, onUpdate }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const updatedRecord = await updateHealthRecord(record._id, {
-        date: form.date,
-        bodyTemperature: parseFloat(form.bodyTemperature),
-        bloodPressure: {
-          systolic: parseInt(form.systolic),
-          diastolic: parseInt(form.diastolic),
-        },
-        heartRate: parseInt(form.heartRate),
-      });
+    const updatedRecord = await updateHealthRecord(record._id, {
+      date: form.date,
+      bodyTemperature: parseFloat(form.bodyTemperature),
+      bloodPressure: {
+        systolic: parseInt(form.systolic),
+        diastolic: parseInt(form.diastolic),
+      },
+      heartRate: parseInt(form.heartRate),
+    });
 
-      onUpdate(updatedRecord);
-      onClose();
-    } catch (error) {
-      console.error("Error updating record:", error);
-    }
+    onUpdate(updatedRecord);
+    onClose();
   };
 
   if (!isOpen) return null;

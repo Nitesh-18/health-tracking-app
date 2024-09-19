@@ -113,7 +113,7 @@ function AddHealthRecord({ isOpen, onClose, selectedRecord, refreshRecords }) {
             />
           </label>
           <label className="block mb-4">
-            <span className="text-gray-300">Body Temperature (°C):</span>
+            <span className="text-gray-300">Body Temperature (°F):</span>
             <input
               type="number"
               name="bodyTemperature"
