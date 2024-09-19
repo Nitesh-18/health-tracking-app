@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { fetchHealthRecords, deleteHealthRecord } from "../services/api";
 import AddHealthRecord from "./AddHealthRecord";
 import SearchBar from "./SearchBar";
@@ -111,6 +111,18 @@ function Dashboard() {
     }, 2000); // Keep highlight for 2 seconds
   };
 
+  // Blood Pressure Reference Checker
+  const getBloodPressureStatus = (systolic, diastolic) => {
+    if (systolic >= 140 || diastolic >= 90) {
+      return "bg-red-600 text-white"; // Hypertension (high)
+    } else if (systolic >= 130 || diastolic >= 80) {
+      return "bg-yellow-400"; // Pre-Hypertensive
+    } else if (systolic < 90 || diastolic < 60) {
+      return "bg-yellow-400"; // Low BP
+    }
+    return "bg-green-500 text-white"; // Normal
+  };
+
   return (
     <div className="container mx-auto p-6 bg-gray-900 text-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold mb-6">Health Metrics Dashboard</h1>
@@ -151,10 +163,10 @@ function Dashboard() {
             <tr className="bg-gray-800">
               <th className="px-6 py-4">Date</th>
               <th className="px-6 py-4">
-                Body Temperature (Reference: 36.5-37.5°C)
+                Body Temperature (Reference: 97.7-99.5°F)
               </th>
               <th className="px-6 py-4">
-                Blood Pressure (Reference: 120/80 mmHg)
+                Blood Pressure (Reference: Normal: 120/80 mmHg)
               </th>
               <th className="px-6 py-4">Heart Rate (Reference: 60-100 bpm)</th>
               <th className="px-6 py-4">Actions</th>
@@ -175,28 +187,23 @@ function Dashboard() {
                 </td>
                 <td
                   className={`border px-6 py-4 ${
-                    record.bodyTemperature > 37.5
+                    record.bodyTemperature > 99.5
                       ? "bg-red-600 text-white"
-                      : record.bodyTemperature < 36.5
+                      : record.bodyTemperature < 97.7
                       ? "bg-yellow-400"
                       : "bg-green-500 text-white"
                   }`}
                 >
-                  {record.bodyTemperature}°C
+                  {record.bodyTemperature}°F
                 </td>
                 <td
-                  className={`border px-6 py-4 ${
-                    record.bloodPressure.systolic > 120 ||
-                    record.bloodPressure.diastolic > 80
-                      ? "bg-red-600 text-white"
-                      : record.bloodPressure.systolic < 90 ||
-                        record.bloodPressure.diastolic < 60
-                      ? "bg-yellow-400"
-                      : "bg-green-500 text-white"
-                  }`}
+                  className={`border px-6 py-4 ${getBloodPressureStatus(
+                    record.bloodPressure.systolic,
+                    record.bloodPressure.diastolic
+                  )}`}
                 >
                   {record.bloodPressure.systolic}/
-                  {record.bloodPressure.diastolic}
+                  {record.bloodPressure.diastolic} mmHg
                 </td>
                 <td
                   className={`border px-6 py-4 ${
@@ -211,13 +218,13 @@ function Dashboard() {
                 </td>
                 <td className="border px-6 py-4">
                   <button
-                    className="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-400 transition duration-300"
+                    className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-400 transition duration-300"
                     onClick={() => handleView(record)}
                   >
                     View
                   </button>
                   <button
-                    className="bg-red-600 text-white px-3 py-1 rounded ml-2 hover:bg-red-500 transition duration-300"
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-400 transition duration-300"
                     onClick={() => handleDelete(record._id)}
                   >
                     Delete
@@ -228,14 +235,14 @@ function Dashboard() {
           </tbody>
         </table>
       ) : (
-        <p>No records found.</p>
+        <p>No health records available</p>
       )}
-      {isModalOpen && selectedRecord && (
+      {selectedRecord && (
         <RecordModal
           isOpen={isModalOpen}
-          record={selectedRecord}
           onClose={() => setIsModalOpen(false)}
-          onUpdate={handleUpdateRecord}
+          record={selectedRecord}
+          onUpdateRecord={handleUpdateRecord}
         />
       )}
     </div>
