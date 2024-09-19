@@ -15,7 +15,7 @@ A full-stack Health Tracking App built with the MERN (MongoDB, Express, React, N
 - **Add New Record:**
   - Users can add new health records with the following fields:
     - Date
-    - Body temperature (in °C)
+    - Body temperature (in °F)
     - Blood pressure (Systolic/Diastolic)
     - Heart rate (in bpm)
   - Upon adding a new record, the dashboard is updated instantly.
