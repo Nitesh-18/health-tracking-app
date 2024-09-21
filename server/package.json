@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "server-health-tracking-app",
   "version": "1.0.0",
   "main": "server.js",
   "type": "module",
@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nitesh Ranjankar",
   "license": "ISC",
   "description": "",
   "dependencies": {

@@ -11,17 +11,16 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "https://health-tracking-app-jmv3.onrender.com", // Replace with your deployed frontend URL
+    origin: "https://health-tracking-app-jmv3.onrender.com", 
     methods: ["GET", "POST", "PUT", "DELETE"], // Explicitly allow POST requests
   })
 );
 
 app.use(express.json()); // JSON parser
 
-// Connect to MongoDB
 connectDB();
 
-// Routes
+// Routes---
 app.use("/api/health-records", healthRecordRoutes);
 
 // Home Route
