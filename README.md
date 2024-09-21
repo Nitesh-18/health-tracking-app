@@ -9,7 +9,7 @@ A full-stack Health Tracking App built with the MERN (MongoDB, Express, React, N
 
 - **Dashboard:**
   - Displays a list of all health records with metrics such as body temperature, blood pressure, and heart rate.
-  - Records that exceed reference values are highlighted in red, and records below the reference are highlighted in yellow also the records that fit perfectly in the given reference those are highlighted in green.
+  - Records that exceed reference values are highlighted in red, and records below the reference are highlighted in yellow also the records that fit perfectly in the given reference range those are highlighted in green.
   - Smooth UI transitions and animations using Framer Motion and Tailwind CSS.
   
 - **Add New Record:**
